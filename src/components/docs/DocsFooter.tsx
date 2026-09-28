@@ -5,6 +5,7 @@ import Image from "next/image";
 import { GridLines, StarField } from "../index";
 import Link from "next/link";
 import { useTheme } from "next-themes";
+import { useBackToTop } from "@/hooks/useBackToTop";
 
 export default function Footer() {
   const [mounted, setMounted] = useState(false);
@@ -25,40 +26,7 @@ export default function Footer() {
     setMounted(true);
   }, []);
 
-  useEffect(() => {
-    // Back to top functionality
-    const backToTopButton = document.getElementById("back-to-top");
-    if (!backToTopButton) return;
-
-    const toggleButton = () => {
-      if (window.scrollY > 300) {
-        backToTopButton.style.opacity = "1";
-        backToTopButton.style.transform = "translateY(-30px)";
-      } else {
-        backToTopButton.style.opacity = "0";
-        backToTopButton.style.transform = "translateY(10px)";
-      }
-    };
-
-    const handleClick = () => {
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth",
-      });
-    };
-
-    window.addEventListener("scroll", toggleButton);
-    backToTopButton.addEventListener("click", handleClick);
-
-    // Initial check
-    toggleButton();
-
-    // Cleanup function to prevent memory leaks
-    return () => {
-      window.removeEventListener("scroll", toggleButton);
-      backToTopButton.removeEventListener("click", handleClick);
-    };
-  }, []);
+  useBackToTop();
 
   // Prevent hydration mismatch by rendering dark theme until mounted
   if (!mounted) {
