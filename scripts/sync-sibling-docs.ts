@@ -17,6 +17,7 @@ import fs from "fs";
 import path from "path";
 import { normalizeFences } from "./markdown-fences";
 import { convertMdxToMarkdown } from "./mdx-to-markdown";
+import { scrubKubestellarBranding } from "./legacy-branding";
 
 export interface RepoRef {
   owner: string;
@@ -275,22 +276,11 @@ export function introduceSpekStyle(project: string, target: string, content: str
 // ---------------------------------------------------------------------------
 // Brand scrub
 // ---------------------------------------------------------------------------
-// The source repos predate the Hive Commons migration and still carry
-// KubeStellar-era identifiers. Rewrite them until the upstream repos are
-// scrubbed, so the published site never shows the old branding.
+// The shared KubeStellar-era rules live in scripts/legacy-branding.ts (also
+// used by sync-hive-docs.ts); this project additionally scrubs Spektacular's
+// jumppad-labs origin.
 export function scrubLegacyBranding(content: string): string {
-  return content
-    .replace(/io\.kubestellar\.hive\./g, "io.hivecommons.hive.")
-    .replace(/hive\\?\.kubestellar\\?\.io/g, (m) =>
-      m.includes("\\") ? "hive\\.hivecommons\\.dev" : "hive.hivecommons.dev")
-    .replace(/examples\/kubestellar-fixer\.md/g, "examples/hivecommons-fixer.md")
-    .replace(/examples\/kubestellar\//g, "examples/hivecommons/")
-    .replace(/@kubestellar\//g, "@hivecommons/")
-    .replace(/github\.com\/kubestellar\/hive/g, "github.com/hivecommons/hive")
-    .replace(/github\.com\/kubestellar/g, "github.com/hivecommons")
-    .replace(/kubestellar\/hive/g, "hivecommons/hive")
-    .replace(/kubestellar\/pluk/g, "hivecommons/pluk")
-    .replace(/kubestellar\/hotshot/g, "hivecommons/hotshot")
+  return scrubKubestellarBranding(content)
     // Spektacular transferred from jumppad-labs. Only rewrite repo sub-paths
     // (releases, issues, blob): the Go module path is still
     // github.com/jumppad-labs/spektacular and the Homebrew tap still lives
@@ -298,11 +288,7 @@ export function scrubLegacyBranding(content: string): string {
     // keep their original targets. Other jumppad-labs repos (the tutorial's
     // example project) were not transferred and keep their URLs.
     .replace(/github\.com\/jumppad-labs\/spektacular\//g, "github.com/hivecommons/spektacular/")
-    .replace(/github\.com\/jumppad-labs\/spektacular-website\//g, "github.com/hivecommons/spektacular-website/")
-    .replace(/kubestellar\.io/g, "hivecommons.dev")
-    .replace(/KubeStellar/g, "Hive Commons")
-    .replace(/Kubestellar/g, "Hive Commons")
-    .replace(/kubestellar/g, "hivecommons");
+    .replace(/github\.com\/jumppad-labs\/spektacular-website\//g, "github.com/hivecommons/spektacular-website/");
 }
 
 function fileRepo(p: ProjectSync, f: SyncedFile): RepoRef {
